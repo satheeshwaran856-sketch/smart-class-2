@@ -23,16 +23,22 @@ db = SQLAlchemy(app)
 # ---------------- DATABASE TABLES ----------------
 
 class Student(db.Model):
+    __tablename__ = "student"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     dept = db.Column(db.String(100), nullable=False)
 
+
 class Attendance(db.Model):
+    __tablename__ = "attendance"
+
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, nullable=False)
     date = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     mood = db.Column(db.String(20), nullable=False)
+
 
 # ---------------- ROUTES ----------------
 
@@ -41,13 +47,15 @@ class Attendance(db.Model):
 def home():
     return render_template("login.html")
 
+
 # Dashboard
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
     students = Student.query.all()
     return render_template("dashboard.html", students=students)
 
-# Add Student
+
+# Add Student (GET + POST FIXED)
 @app.route("/add_student", methods=["GET", "POST"])
 def add_student():
     if request.method == "POST":
@@ -59,9 +67,10 @@ def add_student():
             db.session.add(new_student)
             db.session.commit()
 
-        return redirect(url_for("dashboard"))
+            return redirect(url_for("dashboard"))
 
     return render_template("add_student.html")
+
 
 # Mark Attendance (POST ONLY)
 @app.route("/mark", methods=["POST"])
@@ -82,6 +91,7 @@ def mark():
 
     return redirect(url_for("dashboard"))
 
+
 # Report Page
 @app.route("/report", methods=["GET"])
 def report():
@@ -98,11 +108,15 @@ def report():
         sad=sad
     )
 
+
+# ---------------- AUTO DB CREATE (IMPORTANT FIX) ----------------
+
+with app.app_context():
+    db.create_all()
+
+
 # ---------------- RUN ----------------
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
