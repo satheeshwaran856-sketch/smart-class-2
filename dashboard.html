@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Dashboard</title>
+    <title>Dashboard</title>
 </head>
 <body>
 
-<h2>Dashboard</h2>
+    <h2>Smart Classroom Dashboard</h2>
 
-<a href="/add_student">Add Student</a> |
-<a href="/report">View Report</a>
+    <a href="/add_student">Add Student</a> |
+    <a href="/report">View Report</a>
 
-<hr>
+    <hr>
 
-<table border="1">
-<tr>
-<th>Name</th>
-<th>Dept</th>
-<th>Mark</th>
-</tr>
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Mark Attendance</th>
+        </tr>
 
-{% for s in students %}
-<tr>
-<td>{{ s.name }}</td>
-<td>{{ s.dept }}</td>
-<td>
-<form action="/mark" method="POST">
-<input type="hidden" name="student_id" value="{{ s.id }}">
+        {% for s in students %}
+        <tr>
+            <td>{{ s.name }}</td>
+            <td>{{ s.dept }}</td>
+            <td>
+                <form action="/mark" method="POST">
+                    <input type="hidden" name="student_id" value="{{ s.id }}">
 
-<select name="status">
-<option>Present</option>
-<option>Absent</option>
-</select>
+                    <select name="status" required>
+                        <option value="">Select Status</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                    </select>
 
-<select name="mood">
-<option>Happy</option>
-<option>Normal</option>
-<option>Sad</option>
-</select>
+                    <select name="mood" required>
+                        <option value="">Select Mood</option>
+                        <option value="Happy">Happy</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Sad">Sad</option>
+                    </select>
 
-<button type="submit">Submit</button>
-</form>
-</td>
-</tr>
-{% endfor %}
+                    <button type="submit">Submit</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
 
-</table>
+    </table>
 
 </body>
 </html>
