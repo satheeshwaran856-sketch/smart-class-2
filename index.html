@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Classroom</title>
+</head>
+<body>
+
+    <h2>Student Attendance Form</h2>
+
+    <form method="POST" action="/add">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Register Number:</label><br>
+        <input type="text" name="regno" required><br><br>
+
+        <input type="submit" value="Add Student">
+    </form>
+
+    <h3>Student List</h3>
+    <ul>
+        {% for student in students %}
+            <li>{{ student[1] }} - {{ student[2] }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
