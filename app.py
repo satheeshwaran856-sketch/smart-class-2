@@ -1,11 +1,12 @@
 import os
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date
 
 app = Flask(__name__)
 
-# DATABASE CONFIG (Render PostgreSQL or Local SQLite fallback)
+# ---------------- DATABASE CONFIG ----------------
+
 database_url = os.getenv("DATABASE_URL")
 
 if database_url:
@@ -35,48 +36,54 @@ class Attendance(db.Model):
 
 # ---------------- ROUTES ----------------
 
-@app.route("/")
+# Home Page
+@app.route("/", methods=["GET"])
 def home():
     return render_template("login.html")
 
-@app.route("/dashboard")
+# Dashboard
+@app.route("/dashboard", methods=["GET"])
 def dashboard():
     students = Student.query.all()
     return render_template("dashboard.html", students=students)
 
+# Add Student
 @app.route("/add_student", methods=["GET", "POST"])
 def add_student():
     if request.method == "POST":
-        name = request.form["name"]
-        dept = request.form["dept"]
+        name = request.form.get("name")
+        dept = request.form.get("dept")
 
-        new_student = Student(name=name, dept=dept)
-        db.session.add(new_student)
-        db.session.commit()
+        if name and dept:
+            new_student = Student(name=name, dept=dept)
+            db.session.add(new_student)
+            db.session.commit()
 
-        return redirect("/dashboard")
+        return redirect(url_for("dashboard"))
 
     return render_template("add_student.html")
 
+# Mark Attendance (POST ONLY)
 @app.route("/mark", methods=["POST"])
 def mark():
-    student_id = request.form["student_id"]
-    status = request.form["status"]
-    mood = request.form["mood"]
+    student_id = request.form.get("student_id")
+    status = request.form.get("status")
+    mood = request.form.get("mood")
 
-    record = Attendance(
-        student_id=student_id,
-        date=str(date.today()),
-        status=status,
-        mood=mood
-    )
+    if student_id and status and mood:
+        record = Attendance(
+            student_id=student_id,
+            date=str(date.today()),
+            status=status,
+            mood=mood
+        )
+        db.session.add(record)
+        db.session.commit()
 
-    db.session.add(record)
-    db.session.commit()
+    return redirect(url_for("dashboard"))
 
-    return redirect("/dashboard")
-
-@app.route("/report")
+# Report Page
+@app.route("/report", methods=["GET"])
 def report():
     records = Attendance.query.all()
 
@@ -84,10 +91,12 @@ def report():
     normal = sum(1 for r in records if r.mood == "Normal")
     sad = sum(1 for r in records if r.mood == "Sad")
 
-    return render_template("report.html",
-                           happy=happy,
-                           normal=normal,
-                           sad=sad)
+    return render_template(
+        "report.html",
+        happy=happy,
+        normal=normal,
+        sad=sad
+    )
 
 # ---------------- RUN ----------------
 
